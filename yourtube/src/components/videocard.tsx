@@ -10,12 +10,12 @@ export default function VideoCard({ video }: any) {
       <div className="space-y-3">
         <div className="relative aspect-video rounded-lg overflow-hidden bg-gray-100">
           {/* <video
-            src={`${process.env.BACKEND_URL}/${video?.filepath}`}
+            src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${video?.filepath}`}
             className="object-cover group-hover:scale-105 transition-transform duration-200"
           /> */}
 
           <video
-  src={`http://localhost:5000/${video?.filepath.replace(/\\/g, "/")}`}
+  src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${video?.filepath.replace(/\\/g, "/")}`}
   className="object-cover group-hover:scale-105 transition-transform duration-200"
 />
 
