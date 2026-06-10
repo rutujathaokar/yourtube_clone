@@ -1,0 +1,6 @@
+server/.env
+server/uploads/
+server/node_modules/
+
+yourtube/node_modules/
+yourtube/.next/
