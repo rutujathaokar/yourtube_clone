@@ -14,10 +14,36 @@ const commentschema = mongoose.Schema(
     commentbody: { type: String },
     usercommented: { type: String },
     commentedon: { type: Date, default: Date.now },
+    likes: {
+      type: Number,
+      default: 0,
+    },
+    dislikes: {
+      type: Number,
+      default: 0,
+    },
+    city: {
+      type: String,
+      default: "",
+    },
+    likedBy: [
+  {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "user",
+  },
+],
+
+dislikedBy: [
+  {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "user",
+  },
+],
   },
   {
     timestamps: true,
   }
+  
 );
 
 export default mongoose.model("comment", commentschema);

@@ -12,15 +12,21 @@ interface Comment {
   commentbody: string;
   usercommented: string;
   commentedon: string;
+  city?: string;
+  likes?: number;
+  dislikes?: number;
 }
 const Comments = ({ videoId }: any) => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
+  const [city, setCity] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
   const [editText, setEditText] = useState("");
   const { user } = useUser();
   const [loading, setLoading] = useState(true);
+  const [translatedComments, setTranslatedComments] = useState<any>({});
+  
   const fetchedComments = [
     {
       _id: "1",
@@ -39,6 +45,7 @@ const Comments = ({ videoId }: any) => {
       commentedon: new Date(Date.now() - 7200000).toISOString(),
     },
   ];
+
   useEffect(() => {
     loadComments();
   }, [videoId]);
@@ -46,6 +53,7 @@ const Comments = ({ videoId }: any) => {
   const loadComments = async () => {
     try {
       const res = await axiosInstance.get(`/comment/${videoId}`);
+      console.log(res.data);
       setComments(res.data);
     } catch (error) {
       console.log(error);
@@ -57,26 +65,28 @@ const Comments = ({ videoId }: any) => {
     return <div>Loading history...</div>;
   }
   const handleSubmitComment = async () => {
+
+    const specialCharRegex = /[!@#$%^&*(),.":{}|<>]/;
+
+  if (specialCharRegex.test(newComment)) {
+    alert("Special characters are not allowed");
+    return;
+  }
+
+
     if (!user || !newComment.trim()) return;
 
     setIsSubmitting(true);
     try {
       const res = await axiosInstance.post("/comment/postcomment", {
-        videoid: videoId,
-        userid: user._id,
-        commentbody: newComment,
-        usercommented: user.name,
-      });
+  videoid: videoId,
+  userid: user._id,
+  commentbody: newComment,
+  usercommented: user.name,
+  city: city,
+});
       if (res.data.comment) {
-        const newCommentObj: Comment = {
-          _id: Date.now().toString(),
-          videoid: videoId,
-          userid: user._id,
-          commentbody: newComment,
-          usercommented: user.name || "Anonymous",
-          commentedon: new Date().toISOString(),
-        };
-        setComments([newCommentObj, ...comments]);
+        await loadComments();
       }
       setNewComment("");
     } catch (error) {
@@ -112,16 +122,57 @@ const Comments = ({ videoId }: any) => {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    try {
-      const res = await axiosInstance.delete(`/comment/deletecomment/${id}`);
-      if (res.data.comment) {
-        setComments((prev) => prev.filter((c) => c._id !== id));
+ const handleDelete = async (id: string) => {
+  try {
+    await axiosInstance.delete(`/comment/deletecomment/${id}`);
+    await loadComments();
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+  const handleTranslate = async (
+  commentId: string,
+  text: string
+) => {
+  try {
+    const res = await axiosInstance.post(
+      "/comment/translate",
+      {
+        text,
       }
-    } catch (error) {
-      console.log(error);
-    }
-  };
+    );
+
+    setTranslatedComments((prev: any) => ({
+      ...prev,
+      [commentId]: res.data.translated,
+    }));
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+ const handleLike = async (id: string) => {
+  try {
+    await axiosInstance.patch(`/comment/like/${id}`);
+    await loadComments();
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const handleDislike = async (id: string) => {
+  try {
+    await axiosInstance.patch(`/comment/dislike/${id}`);
+    await loadComments();
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+
+
+
   return (
     <div className="space-y-6">
       <h2 className="text-xl font-semibold">{comments.length} Comments</h2>
@@ -133,6 +184,13 @@ const Comments = ({ videoId }: any) => {
             <AvatarFallback>{user.name?.[0] || "U"}</AvatarFallback>
           </Avatar>
           <div className="flex-1 space-y-2">
+            <input
+              type="text"
+              placeholder="Enter your city"
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+              className="w-full border rounded p-2 mb-2"
+            />
             <Textarea
               placeholder="Add a comment..."
               value={newComment}
@@ -173,6 +231,7 @@ const Comments = ({ videoId }: any) => {
                 <div className="flex items-center gap-2 mb-1">
                   <span className="font-medium text-sm">
                     {comment.usercommented}
+                    {comment.city ? ` • ${comment.city}` : ""}
                   </span>
                   <span className="text-xs text-gray-600">
                     {formatDistanceToNow(new Date(comment.commentedon))} ago
@@ -206,6 +265,31 @@ const Comments = ({ videoId }: any) => {
                 ) : (
                   <>
                     <p className="text-sm">{comment.commentbody}</p>
+                    <div className="flex gap-4 mt-2 text-sm">
+  <button onClick={() => handleLike(comment._id)}>
+    👍 {comment.likes || 0}
+  </button>
+
+  <button onClick={() => handleDislike(comment._id)}>
+    👎 {comment.dislikes || 0}
+  </button>
+
+  <button
+    onClick={() =>
+      handleTranslate(
+        comment._id,
+        comment.commentbody
+      )
+    }
+  >
+    🌐 Translate
+  </button>
+</div>
+{translatedComments[comment._id] && (
+  <p className="text-sm text-blue-600 mt-1">
+    Translation: {translatedComments[comment._id]}
+  </p>
+)}
                     {comment.userid === user?._id && (
                       <div className="flex gap-2 mt-2 text-sm text-gray-500">
                         <button onClick={() => handleEdit(comment)}>
