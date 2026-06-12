@@ -15,16 +15,22 @@ export const postcomment = async (req, res) => {
     return res.status(500).json({ message: "Something went wrong" });
   }
 };
+
 export const getallcomment = async (req, res) => {
   const { videoid } = req.params;
+
   try {
-    const commentvideo = await comment.find({ videoid: videoid });
+    const commentvideo = await comment
+      .find({ videoid: videoid })
+      .sort({ createdAt: -1 });
+
     return res.status(200).json(commentvideo);
   } catch (error) {
     console.error(" error:", error);
     return res.status(500).json({ message: "Something went wrong" });
   }
 };
+
 export const deletecomment = async (req, res) => {
   const { id: _id } = req.params;
   if (!mongoose.Types.ObjectId.isValid(_id)) {
@@ -57,10 +63,6 @@ export const editcomment = async (req, res) => {
 };
 
 
-
-const commentvideo = await comment
-  .find({ videoid: videoid })
-  .sort({ createdAt: -1 });
 
 
 export const likeComment = async (req, res) => {
