@@ -6,7 +6,10 @@ import { Avatar, AvatarFallback } from "./ui/avatar";
 const videos = "/video/vdo.mp4";
 export default function VideoCard({ video }: any) {
   return (
-    <Link href={`/watch/${video?._id}`} className="group">
+    <Link
+  href={`/watch/${video?._id}`}
+  className="group block w-full"
+>
       <div className="space-y-3">
         <div className="relative aspect-video rounded-lg overflow-hidden bg-gray-100">
           {/* <video
@@ -16,7 +19,7 @@ export default function VideoCard({ video }: any) {
 
           <video
   src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${video?.filepath.replace(/\\/g, "/")}`}
-  className="object-cover group-hover:scale-105 transition-transform duration-200"
+  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
 />
 
 
