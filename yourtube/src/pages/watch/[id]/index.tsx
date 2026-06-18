@@ -67,10 +67,10 @@ const index = () => {
     return <div>Video not found</div>;
   }
   return (
-    <div className="min-h-screen bg-white">
+    <div className="w-full min-h-screen bg-white">
       <div className="max-w-7xl mx-auto p-4">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 space-y-4">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+          <div className="xl:col-span-2 space-y-4">
             <Videopplayer video={videos} />
             <VideoInfo video={videos} />
             <Comments videoId={id} />
