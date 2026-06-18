@@ -16,7 +16,7 @@ export default function VideoPlayer({ video }: VideoPlayerProps) {
 
   return (
     <>
-      <p>{video?.filepath}</p>
+      
      <div className="aspect-video bg-black rounded-lg overflow-hidden">
       <video
         ref={videoRef}
